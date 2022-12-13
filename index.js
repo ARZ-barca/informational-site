@@ -1,28 +1,32 @@
-const http = require("http");
+const exrpess = require("express");
 const fs = require("fs/promises");
 
-http
-  .createServer((req, res) => {
-    const url = new URL(req.url, "http://localhost:3000");
-    const section = url.pathname;
-    async function returnHtml(filename) {
-      try {
-        const data = await fs.readFile(filename);
-        res.writeHead(200, { "Content-Type": "text/html" });
-        res.write(data);
-        res.end();
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    if (section === "/") {
-      returnHtml("./index.html");
-    } else if (section === "/about") {
-      returnHtml("about.html");
-    } else if (section === "/contact") {
-      returnHtml("contact-me.html");
-    } else {
-      returnHtml("404.html");
-    }
-  })
-  .listen(3000);
+const app = exrpess();
+
+async function returnHtml(filename, res) {
+  try {
+    res.send(await fs.readFile(filename, "utf8"));
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+app.get("/", (req, res) => {
+  returnHtml("./index.html", res);
+});
+
+app.get("/about", (req, res) => {
+  returnHtml("./index.html", res);
+});
+
+app.get("/contact", (req, res) => {
+  returnHtml("./index.html", res);
+});
+
+app.use((req, res) => {
+  returnHtml("./404.html", res);
+});
+
+app.listen(3000, () => {
+  console.log("go to port 3000");
+});
